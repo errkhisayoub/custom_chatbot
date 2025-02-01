@@ -138,7 +138,7 @@ async def query(kb_id: str, query: str):
         query_without_stop_words = remove_stopwords(query)
         results = chroma_client.retrieve_chunks(kb_id= kb_id, content=query_without_stop_words)
 
-        genai.configure(api_key="AIzaSyDLf8gDa4S1jPGfAti6wno4jdUCaLK9YB0")
+        genai.configure(api_key="Your API Key")
         model = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
             system_instruction=f"""
