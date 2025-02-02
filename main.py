@@ -94,27 +94,30 @@ async def upload_file(kb_id: str, file: UploadFile):
             - If an error occurs: {"message": "something went wrong : {e}"}
             - If the file is not a PDF: {"message": "we support only pdfs"}
     """
-    if file.content_type == "application/pdf":
-        try:
+    try:
+        if file.content_type == "application/pdf":
             text = ""
             reader = PdfReader(file.file)
-
+            
             for page in reader.pages:
                 text += page.extract_text()
-
-            text = text.strip()
-            text = remove_stopwords(text)
-
-            chunks = wrap(text, 1024)
-
-            chroma_client.add_document_to_knowledge_base(kb=kb_id, content=chunks)
-
-            return {"message": f"pdf is successfully chunked and stored into {kb_id}"}
-
-        except Exception as e:
-            return {"message": f"something went wrong : {e}"}
-    else:
-        return {"message": "we support only pdfs"}
+                
+        elif file.content_type == "text/plain":
+            text = file.file.read()
+            
+        else : 
+            return {"message": f"we support only pdfs/text"}
+        
+        text = text.strip()
+        text = remove_stopwords(text)
+        
+        chunks = wrap(text,1024)
+        
+        chroma_client.add_document_to_knowledge_base(kb=kb_id, content=chunks)
+        return {"message": f"pdf is successfully chunked and stored into {kb_id}"}
+    
+    except Exception as e:
+        return {"message" : f"error occured {e}"}
 
 
 @app.post("/query/{kb_id}")
@@ -138,7 +141,7 @@ async def query(kb_id: str, query: str):
         query_without_stop_words = remove_stopwords(query)
         results = chroma_client.retrieve_chunks(kb_id= kb_id, content=query_without_stop_words)
 
-        genai.configure(api_key="Your API Key")
+        genai.configure(api_key="AIzaSyDLf8gDa4S1jPGfAti6wno4jdUCaLK9YB0")
         model = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
             system_instruction=f"""
